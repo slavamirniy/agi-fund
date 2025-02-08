@@ -11,6 +11,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "llm-os": "github:slavamirniy/llmos-production"
+    "dotenv": "^16.4.7",
+    "llm-os": "github:slavamirniy/llmos-production",
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "http-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.6"
   }
 }
