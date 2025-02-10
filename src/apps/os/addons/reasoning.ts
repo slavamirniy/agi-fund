@@ -79,5 +79,5 @@ export const reasoningAddon = AddonBuilder
         return addonState;
 
     })
-    .setBasePromptMiddleware((prompt, addonState) => "If you understood something, write it in the log. If you did something, write it in the log. Ниже у тебя представлен LOG предыдущих действий. Опирайся на него. Не повторяй действия оттуда, продумывай новые стратегии поведения. " + prompt)
+    .setBasePromptMiddleware((prompt, addonState) => "If you understood something, write it in the log. If you did something, write it in the log. Ниже у тебя представлен LOG предыдущих действий. Это самое важное, что у тебя есть. Опирайся на него. Не повторяй действия оттуда, продумывай новые стратегии поведения. " + prompt)
     .setAppDescriptionMiddleware(d => d)
