@@ -83,18 +83,19 @@ export async function getTopic(title: string): Promise<Topic> {
 export async function sendMessageToTopic(topicTitle: string, message: string) {
     try {
         const topic = await getTopic(topicTitle);
-        await bot.sendMessage(mainChatId, message, {
-            message_thread_id: topic.topicMessageId
-        });
-    } catch (error) {
+        try {
+            await bot.sendMessage(mainChatId, message, {
+                message_thread_id: topic.topicMessageId,
+                parse_mode: 'Markdown'
+            });
+        } catch (error) {
+            await bot.sendMessage(mainChatId, message, {
+                message_thread_id: topic.topicMessageId
+            });
+        }
+    }
+    catch (error) {
         console.error('Error while sending message to topic:', error);
         throw error;
     }
 }
-
-async function main() {
-    await sendMessageToTopic('CEO', 'Hello, world!');
-    await sendMessageToTopic('CTO', '101, world!');
-}
-
-main();

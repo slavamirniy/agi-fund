@@ -7,21 +7,27 @@ export const chats: {
     }[]
 }[] = [
         {
-            members: ["Олег", "Алекс"],
+            members: ["CEO", "CTO"],
             messages: []
         }, {
-            members: ["Олег", "Маша"],
+            members: ["CEO", "CMO"],
             messages: []
         },
         {
-            members: ["Алекс", "Маша"],
+            members: ["CMO", "CTO"],
             messages: []
         }
-
     ]
 
+export const emojies: Record<string, string> = {
+    "CEO": "👨‍💼",
+    "CTO": "👨‍💻",
+    "CMO": "👩‍💼",
+    "CFO": "👩‍💼"
+}
 
 export const chatBuilder = AppBuilder
+
     .start()
     .setState(() => ({
         opennedChatId: undefined as string | undefined,

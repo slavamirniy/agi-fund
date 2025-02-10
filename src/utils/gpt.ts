@@ -4,6 +4,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import { Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
 import { Tool } from "llm-os";
+import { Ajv } from 'ajv';
 
 let USE_PROXY = true;
 
@@ -86,36 +87,64 @@ export async function makeGptRequest(messages: any[], tools: any[] | undefined, 
     }
 }
 
+const ajv = new Ajv();
+
 export async function makeGptRequestToolsAsSchema(messages: any[], tools: Tool[]) {
     const schema = {
         type: 'object',
         description: 'Нажать кнопку',
         oneOf: tools.map(tool => ({
-            strict: true,
             type: 'object',
+            strict: true,
             properties: {
                 name: { type: 'string', enum: [tool.function.name] },
-                description: { type: 'string', enum: [tool.function.description] },
+                // description: { type: 'string', enum: [tool.function.description] },
                 properties: { ...tool.function.parameters }
             },
-            required: ['name', 'description', 'properties'],
+            required: ['name', 'properties'],
             additionalProperties: false
         }))
     };
 
-    const result = await makeGptRequest(messages, undefined, undefined, {
+    const schemaForValidation = {
+        type: 'object',
+        description: 'Нажать кнопку',
+        oneOf: tools.map(tool => ({
+            type: 'object',
+            properties: {
+                name: { type: 'string', enum: [tool.function.name] },
+                // description: { type: 'string', enum: [tool.function.description] },
+                properties: { ...tool.function.parameters }
+            },
+            required: ['name', 'properties'],
+            additionalProperties: false
+        }))
+    };
+
+    const requestSchema = {
         type: 'object',
         properties: {
             tool_call: schema
         }
-    });
+    } as const;
+
+    const requestSchemaForValidation = {
+        type: 'object',
+        properties: {
+            tool_call: schemaForValidation
+        }
+    } as const;
+
+    const result = await makeGptRequest(messages, undefined, undefined, requestSchema);
+
 
     const parsed = JSON.parse(result.choices[0].message.content);
 
-    if (parsed.tool_call.name === undefined) {
-        console.log("Tool call name is undefined");
+    if (!ajv.validate(requestSchemaForValidation, parsed)) {
+        console.log("Tool call is invalid");
         return makeGptRequestToolsAsSchema(messages, tools);
     }
+    console.log("Tool call is valid");
 
     return {
         tool_call: {

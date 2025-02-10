@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agent Watch</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: white;
+            font-weight: 500;
+        }
+
+        .message {
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .message .role {
+            font-weight: 500;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .message .content {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .functions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 16px;
+            border-top: 1px solid #eee;
+        }
+
+        .function-button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .function-button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        #error {
+            color: #dc3545;
+            padding: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="tabs" class="tabs"></div>
+    <div id="error">Агент не найден</div>
+    <div id="loading" class="loading">Загрузка...</div>
+    <div id="messages"></div>
+    <div id="functions" class="functions-container"></div>
+
+    <script>
+        let currentAgent = null;
+        const loading = document.getElementById('loading');
+        loading.style.display = 'none';
+        const messagesContainer = document.getElementById('messages');
+        const functionsContainer = document.getElementById('functions');
+        const tabsContainer = document.getElementById('tabs');
+
+        async function loadAgents() {
+            try {
+                const response = await fetch('http://localhost:3021/agent/list');
+                const agents = await response.json();
+                
+                tabsContainer.innerHTML = agents.map(agent => `
+                    <button class="tab ${currentAgent === agent ? 'active' : ''}" 
+                            onclick="selectAgent('${agent}')">${agent}</button>
+                `).join('');
+
+                if (!currentAgent && agents.length > 0) {
+                    selectAgent(agents[0]);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки списка агентов:', error);
+            }
+        }
+
+        async function selectAgent(agentName) {
+            currentAgent = agentName;
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent === agentName);
+            });
+            await updateWindow();
+        }
+
+        async function updateWindow() {
+            if (!currentAgent) return;
+            
+            // loading.style.display = 'block';
+            try {
+                const response = await fetch(`http://localhost:3021/agent/window/${currentAgent}`);
+                if (!response.ok) {
+                    throw new Error('Агент не найден');
+                }
+                const data = await response.json();
+                
+                messagesContainer.innerHTML = data.messages.map(msg => `
+                    <div class="message">
+                        <div class="role">${msg.role}</div>
+                        <div class="content">${msg.content}</div>
+                    </div>
+                `).join('');
+
+                functionsContainer.innerHTML = data.availableFunctions.map(func => `
+                    <button class="function-button">${func}</button>
+                `).join('');
+            } catch (error) {
+                // document.getElementById('error').style.display = 'block';
+            } finally {
+                // loading.style.display = 'none';
+            }
+        }
+
+        // Загружаем список агентов и обновляем каждые 2 секунды
+        loadAgents();
+        setInterval(() => {
+            loadAgents();
+            updateWindow();
+        }, 2000);
+    </script>
+</body>
+</html>
