@@ -16,8 +16,12 @@ async function main() {
                 userId,
                 allowedChats: chatnames.filter(name => name !== userId)
             }))
-            .use(telegramAddon)
-            .use(notificationsAddon)
+            .use(telegramAddon
+                .setInitState()
+            )
+            .use(notificationsAddon
+                .setInitState({})
+            )
             .build() as App<any, any>
 
         return new AppExecutor(
@@ -30,7 +34,11 @@ async function main() {
                     }
                 })
             )
-                .use(apiwatchAddon)
+                .use(apiwatchAddon
+                    .setInitState({
+                        agentName: userId
+                    })
+                )
                 .build()
         );
     }
