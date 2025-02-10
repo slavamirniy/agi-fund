@@ -3,42 +3,36 @@ import { OSAppBuilder, AppExecutor } from 'llm-os';
 import { chatBuilder } from './apps/chat/chat.js';
 import { telegramAddon } from './apps/chat/addons/telegram.js';
 import { notificationsAddon } from './apps/chat/addons/notifications.js';
-import { makeGptRequestToolsAsSchema } from './utils/gpt.js'
+import { makeGptRequest, makeGptRequestToolsAsSchema } from './utils/gpt.js'
 import { AddonsCollector, App } from 'llm-os';
 import { CTO, CEO, CMO } from './personas.js';
 import { apiwatchAddon } from './apps/os/addons/apiwatch.js';
+import { ReasonChain } from './utils/reasoning/reasoningchain.js';
+import { reasoningAddon } from './apps/os/addons/reasoning.js';
 
 async function main() {
     const chatnames = ["CMO", "CTO", "CEO"];
-    const makeAgent = (userId: string, prompt: string) => {
-        const chatApp = AddonsCollector
-            .from(chatBuilder.build({
-                userId,
-                allowedChats: chatnames.filter(name => name !== userId)
-            }))
-            .use(telegramAddon
-                .setInitState()
-            )
-            .use(notificationsAddon
-                .setInitState({})
-            )
-            .build() as App<any, any>
 
+    const makeAgent = (userId: string, prompt: string) => {
         return new AppExecutor(
             makeGptRequestToolsAsSchema,
             AddonsCollector.from(
                 OSAppBuilder.build({
                     goal: prompt,
                     apps: {
-                        chat: chatApp
+                        chat: AddonsCollector
+                            .from(chatBuilder.build({
+                                userId,
+                                allowedChats: chatnames.filter(name => name !== userId)
+                            }))
+                            .use(telegramAddon)
+                            .use(notificationsAddon)
+                            .build() as App<any, any>
                     }
                 })
             )
-                .use(apiwatchAddon
-                    .setInitState({
-                        agentName: userId
-                    })
-                )
+                .use(reasoningAddon)
+                .use(apiwatchAddon.setInitState({ agentName: userId }))
                 .build()
         );
     }

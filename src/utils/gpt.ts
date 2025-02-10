@@ -55,7 +55,7 @@ export function generateProxyAgents(force = false) {
     return proxy;
 }
 
-export async function makeGptRequest(messages: any[], tools: any[] | undefined, parallel_tool_calls: boolean = false, jsonSchema?: { type: 'object', properties: any } | undefined, abortController?: AbortController | undefined) {
+export async function makeGptRequest(messages: any[], tools: any[] | undefined, parallel_tool_calls: boolean = false, jsonSchema?: { type: 'object', properties: any } | undefined, abortController?: AbortController | undefined, temperature?: number) {
     try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: 'gpt-4o',
@@ -70,7 +70,8 @@ export async function makeGptRequest(messages: any[], tools: any[] | undefined, 
                             schema: jsonSchema
                         }
                     }
-                } : {})
+                } : {}),
+            ...(temperature !== undefined ? { temperature } : {})
         }, {
             headers: {
                 'Content-Type': 'application/json',
