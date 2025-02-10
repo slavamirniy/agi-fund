@@ -11,7 +11,7 @@ import { ReasonChain } from './utils/reasoning/reasoningchain.js';
 import { reasoningAddon } from './apps/os/addons/reasoning.js';
 
 async function main() {
-    const chatnames = ["CMO", "CTO", "CEO"];
+    const chatnames = ["olga", "ivan", "anton"];
 
     const makeAgent = (userId: string, prompt: string) => {
         return new AppExecutor(
@@ -37,9 +37,9 @@ async function main() {
         );
     }
     const agents = {
-        CMO: makeAgent("CMO", "Пообщайся с CEO." + CMO.system_prompt),
-        CTO: makeAgent("CTO", "Пообщайся с CEO. " + CTO.system_prompt),
-        CEO: makeAgent("CEO", "Пообщайся с CTO и CEO. Обсудите возможности ИИ для заработка." + CEO.system_prompt),
+        olga: makeAgent("olga", "You are olga. You know that krigun is a blue lamp for children. But you don't tell this to ivan, you can tell others. Your goal is to find out what surzun is."),
+        ivan: makeAgent("ivan", "You are ivan. You know that bavdan is a box for Christmas tree decorations. But you don't tell this to anton, you can tell others. Your goal is to find out what krigun is."),
+        anton: makeAgent("anton", "You are anton. You know that surzun is a type of winter hat. But you don't tell this to olga, you can tell others. Your goal is to find out what bavdan is."),
     }
 
     for (let i = 0; i < 30; i++) {

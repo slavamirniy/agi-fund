@@ -7,7 +7,33 @@ export const notificationsAddon = AddonBuilder
         lastTotalMessages: {} as Record<string, number>
     }))
     .setFunctionsSchemasMiddleware((functions, state, appState) => functions)
-    .setWindowMiddleware((window, state, appState) => window)
+    .setWindowMiddleware((window, state, appState) => {
+        if (!appState.userId) return window;
+        const totals = chats
+            .filter(c => c.members.includes(appState.userId!))
+            .map(v => ({
+                chat: v.members.join(" | "),
+                totalMessages: v.messages.filter(msg => msg.sender !== appState.userId).length
+            }))
+            .map(v => ({
+                chat: v.chat,
+                newMessages: v.totalMessages - (v.chat in state.lastTotalMessages ? state.lastTotalMessages[v.chat] : 0)
+            }))
+            .filter(v => v.newMessages > 0)
+            .map(v => "You have " + v.newMessages + " new messages in the chat " + v.chat)
+            .join("\n");
+        return {
+            ...window,
+            messages: [
+                ...window.messages,
+                {
+                    role: 'system',
+                    content: totals
+                }
+            ]
+        }
+
+    })
     .setButtonPressHandlerMiddleware(d => {
         const appState = d.appState.get();
         const addonState = d.addonState.get();

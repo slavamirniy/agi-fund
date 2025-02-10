@@ -6,7 +6,7 @@ export interface ReasoningStep {
     content: string;
     confidence: number;
     thinkingTime: number;
-    // isFinal: boolean;
+    isFinal: boolean;
 }
 
 export class ReasoningError extends Error {
@@ -50,7 +50,7 @@ export class ReasonChain {
 
             yield step;
 
-            // if (step.isFinal && stepNumber >= this.minSteps) break;
+            if (step.isFinal && stepNumber >= this.minSteps) break;
             stepNumber++;
         }
     }
@@ -68,7 +68,7 @@ export class ReasonChain {
                 content: data.content,
                 confidence: data.confidence || 0.8,
                 thinkingTime,
-                // isFinal: data.next_action === 'final_answer'
+                isFinal: data.next_action === 'final_answer'
             };
         } catch (e) {
             throw new ReasoningError('Invalid response format from LLM');

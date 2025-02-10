@@ -91,7 +91,7 @@ export async function makeGptRequest(messages: any[], tools: any[] | undefined, 
 const ajv = new Ajv();
 
 export async function makeGptRequestToolsAsSchema(messages: any[], tools: Tool[]) {
-    const schema = {
+    const schema = tools.length > 1 ? {
         type: 'object',
         description: 'Нажать кнопку',
         oneOf: tools.map(tool => ({
@@ -105,9 +105,16 @@ export async function makeGptRequestToolsAsSchema(messages: any[], tools: Tool[]
             required: ['name', 'properties'],
             additionalProperties: false
         }))
+    } : {
+        type: 'object',
+        description: 'Нажать кнопку',
+        properties: {
+            name: { type: 'string', enum: [tools[0].function.name] },
+            properties: { ...tools[0].function.parameters }
+        }
     };
 
-    const schemaForValidation = {
+    const schemaForValidation = tools.length > 1 ? {
         type: 'object',
         description: 'Нажать кнопку',
         oneOf: tools.map(tool => ({
@@ -120,6 +127,12 @@ export async function makeGptRequestToolsAsSchema(messages: any[], tools: Tool[]
             required: ['name', 'properties'],
             additionalProperties: false
         }))
+    }: {
+        type: 'object',
+        properties: {
+            name: { type: 'string', enum: [tools[0].function.name] },
+            properties: { ...tools[0].function.parameters }
+        }
     };
 
     const requestSchema = {
@@ -138,7 +151,6 @@ export async function makeGptRequestToolsAsSchema(messages: any[], tools: Tool[]
 
     const result = await makeGptRequest(messages, undefined, undefined, requestSchema);
 
-
     const parsed = JSON.parse(result.choices[0].message.content);
 
     if (!ajv.validate(requestSchemaForValidation, parsed)) {
@@ -146,6 +158,18 @@ export async function makeGptRequestToolsAsSchema(messages: any[], tools: Tool[]
         return makeGptRequestToolsAsSchema(messages, tools);
     }
     console.log("Tool call is valid");
+
+    if (!("tool_call" in parsed)) {
+        if (tools.length !== 1) {
+            return makeGptRequestToolsAsSchema(messages, tools);
+        }
+        return {
+            tool_call: {
+                name: tools[0].function.name,
+                arguments: parsed
+            }
+        };
+    }
 
     return {
         tool_call: {
