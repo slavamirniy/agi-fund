@@ -1,4 +1,5 @@
-import { AddonBuilder, OSAppBuilder, WindowWithFunctions, WindowWithFunctionsNames } from "llm-os";
+import { OSAppBuilder } from "../../os/os.js";
+import { AddonBuilder, WindowWithFunctions, WindowWithFunctionsNames } from "llm-os";
 import express from "express";
 
 const PORT = 3021;

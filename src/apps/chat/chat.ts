@@ -7,17 +7,13 @@ export const chats: {
     }[]
 }[] = [
         {
-            members: ["olga", "ivan"],
-            messages: []
-        }, {
-            members: ["olga", "anton"],
+            members: ["Market Expert", "CEO"],
             messages: []
         },
         {
-            members: ["ivan", "anton"],
+            members: ["CEO", "CMO"],
             messages: []
         }
-
     ]
 
 export const emojies: Record<string, string> = {

@@ -1,10 +1,10 @@
-import { AddonBuilder, OSAppBuilder } from "llm-os";
-import { prompt } from '../../../utils/reasoning/settings.js';
+import { AddonBuilder } from "llm-os";
+import { OSAppBuilder } from "../../os/os.js";
 
 export const reasoningAddon = AddonBuilder
     .start<ReturnType<typeof OSAppBuilder.build>>()
     .setState(() => ({
-        log: [] as string[],
+        log: [] as string[]
     }))
 
     .setFunctionsSchemasMiddleware((functions) => {
@@ -18,10 +18,12 @@ export const reasoningAddon = AddonBuilder
                             ...func.parameters,
                             properties: {
                                 ...func.parameters.properties,
-                                log: { type: 'string', description: 'If you understood something, write it in the log. If you did something, write it in the log.' }
-                            }
+                                log: { type: 'string', description: 'If you understood something, write it in the log. If you did something, write it in the log.' },
+                            },
+                            required: [...func.parameters.required, 'log']
                         }
                     }
+
                 ])
             ),
             summaryLogs: {
@@ -30,7 +32,7 @@ export const reasoningAddon = AddonBuilder
                 parameters: {
                     type: 'object',
                     properties: {
-                        summary: { type: 'string', description: 'Summary of the log. Highlight all important points: what you did, what you learned, what you will do next.' }
+                        summary: { type: 'string', description: 'Summary of the log. Highlight all important points: what you did, what you learned, what you will do next. Сейчас мы удалим все логи и заменим их тем, что ты здесь напишешь. Оставь здесь важную информацию.' }
                     },
                     required: ['summary']
                 }
@@ -65,12 +67,15 @@ export const reasoningAddon = AddonBuilder
             ]
 
 
+
         }
     })
     .setButtonPressHandlerMiddleware((data) => {
         const addonState = data.addonState.get();
 
-        addonState.log.push("I called " + data.function.name + ". " + data.function.args.log);
+        if ("log" in data.function.args) {
+            addonState.log.push("I called " + data.function.name + ". " + data.function.args.log);
+        }
 
         if (data.function.name === 'summaryLogs') {
             addonState.log = [data.function.args.summary];
@@ -79,5 +84,5 @@ export const reasoningAddon = AddonBuilder
         return addonState;
 
     })
-    .setBasePromptMiddleware((prompt, addonState) => "If you understood something, write it in the log. If you did something, write it in the log. Ниже у тебя представлен LOG предыдущих действий. Это самое важное, что у тебя есть. Опирайся на него. Не повторяй действия оттуда, продумывай новые стратегии поведения. " + prompt)
+    .setBasePromptMiddleware((prompt, addonState) => "WHEN SWITCHING BETWEEN APPLICATIONS - INFORMATION IS ERASED! WRITE ALL NECESSARY INFORMATION IN LOG AND MEMORY, OTHERWISE IT WILL BE DELETED (tasks, task results, thoughts, errors). If you understood something, write it in the log. If you did something, write it in the log. Below you have the LOG of previous actions. This is the most important thing you have. Rely on it. Don't repeat actions from there, think through new behavior strategies. " + prompt)
     .setAppDescriptionMiddleware(d => d)

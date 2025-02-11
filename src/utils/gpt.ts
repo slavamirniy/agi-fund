@@ -12,7 +12,6 @@ const proxies = [
     process.env.PROXY_URL as string
 ];
 
-
 export function unleaf() {
     return {
         httpsAgent: new HttpsAgent({ rejectUnauthorized: false }),
@@ -83,6 +82,9 @@ export async function makeGptRequest(messages: any[], tools: any[] | undefined, 
 
         return response;
     } catch (error) {
+        if ("code" in error && (error.code === "ECONNRESET" || error.code === "ETIMEDOUT")) {
+            return makeGptRequest(messages, tools, parallel_tool_calls, jsonSchema, abortController, temperature);
+        }
         console.error('Error generating prompt:', error);
         throw error;
     }
