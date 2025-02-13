@@ -11,9 +11,9 @@ import { reasoningAddon } from './apps/os/addons/reasoning.js';
 import { cryptoApp } from './apps/crypto/crypto.js';
 import { OSAppBuilder } from './apps/os/os.js';
 import { redditApp } from './apps/reddit/reddit.js';
-
+import { safeAppBuilder } from './apps/safe/safe.js';
 async function main() {
-    const chatnames = ["Market Expert", "CEO", "CMO"];
+    const chatnames = ["Market Expert", "CEO", "CMO", "Wallet Master"];
 
     const agents = {
         "Market Expert": new AppExecutor(
@@ -83,6 +83,26 @@ async function main() {
             }))
                 .use(reasoningAddon)
                 .use(apiwatchAddon.setInitState({ agentName: "CMO" }))
+                .build() as App<any, any>
+        ),
+        "Wallet Master": new AppExecutor(
+            makeGptRequestToolsAsSchema,
+            AddonsCollector.from(OSAppBuilder.build({
+                goal: 'Get tasks about transactions from CEO in chat and complete them.',
+                apps: {
+                    chat: AddonsCollector
+                        .from(chatBuilder.build({
+                            userId: "Wallet Master",
+                            allowedChats: chatnames.filter(name => name !== "Wallet Master")
+                        }))
+                        .use(telegramAddon)
+                        .use(notificationsAddon)
+                        .build() as App<any, any>,
+                    safe: safeAppBuilder.build() as App<any, any>
+                }
+            }) as App<any, any>)
+                .use(reasoningAddon)
+                .use(apiwatchAddon.setInitState({ agentName: "Wallet Master" }))
                 .build() as App<any, any>
         )
     }

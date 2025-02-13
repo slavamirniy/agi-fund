@@ -13,6 +13,10 @@ export const chats: {
         {
             members: ["CEO", "CMO"], 
             messages: []
+        },
+        {
+            members: ["Wallet Master", "CEO"],
+            messages: []
         }
     ]
 
