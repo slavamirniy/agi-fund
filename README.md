@@ -9,6 +9,7 @@ This project implements an autonomous system of AI agents that work together to 
 - Market Expert: Analyzes cryptocurrency market data
 - CEO: Manages and coordinates tasks between team members
 - CMO: Handles social media and market sentiment analysis
+- Wallet Master: Manages secure multi-signature transactions using Safe protocol
 
 ## Features
 
@@ -17,6 +18,11 @@ This project implements an autonomous system of AI agents that work together to 
 - Multi-agent coordination and task management
 - API monitoring and automated reasoning capabilities
 - Reddit integration for social sentiment analysis
+- Secure multi-signature wallet management with Safe protocol
+  - Deploy and manage Safe smart accounts
+  - Create and execute multi-signature transactions
+  - Monitor transaction history and account status
+  - Multi-owner transaction approval system
 
 ## Tech Stack
 
@@ -25,6 +31,7 @@ This project implements an autonomous system of AI agents that work together to 
 - Express
 - LLM-OS (Custom AI Operating System)
 - Telegram Bot API
+- Safe Protocol Kit
 - Various Cryptocurrency APIs
 
 ## Prerequisites
@@ -32,6 +39,8 @@ This project implements an autonomous system of AI agents that work together to 
 - Node.js (Latest LTS version)
 - npm or yarn
 - Telegram Bot Token
+- Ethereum Wallet with Private Key (for Safe transactions)
+- Safe Protocol API Keys
 - Required API keys (configured in .env)
 
 ## Installation
@@ -48,7 +57,12 @@ npm install
 ```
 
 3. Configure environment variables:
-Create a `.env` file in the root directory and add necessary API keys and tokens.
+Create a `.env` file in the root directory and add necessary API keys and tokens:
+```
+SAFE_AGENT_ADDRESS=your_agent_ethereum_address
+SAFE_AGENT_PRIVATE_KEY=your_agent_private_key
+SAFE_HUMAN_SIGNER_ADDRESS=your_human_signer_address
+```
 
 4. Build the project:
 ```bash
@@ -67,6 +81,7 @@ npm start
     - `/chat` - Chat functionality and Telegram integration
     - `/crypto` - Cryptocurrency analysis
     - `/os` - Core operating system functionality
+    - `/safe` - Safe Protocol integration and wallet management
     - `/reddit` - Reddit integration
   - `/utils` - Utility functions and helpers
   - `index.ts` - Application entry point
