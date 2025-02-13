@@ -85,5 +85,5 @@ export const cryptoApp = AppBuilder
         }
         return currentState;
     })
-    .setBasePromptGenerator(state => "У вас открыт терминал Coin Market Cap, здесь вы можете получить информацию о криптовалютах. Вы можете использовать функции getLatestListings для получения информации о криптовалютах.")
+    .setBasePromptGenerator(state => "You have opened the Coin Market Cap terminal where you can get information about cryptocurrencies. You can use the getLatestListings function to get information about cryptocurrencies.")
     .setAppDescription("Coin Market Cap terminal")

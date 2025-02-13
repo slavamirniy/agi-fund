@@ -11,7 +11,7 @@ export const chats: {
             messages: []
         },
         {
-            members: ["CEO", "CMO"],
+            members: ["CEO", "CMO"], 
             messages: []
         }
     ]
@@ -35,7 +35,7 @@ export const chatBuilder = AppBuilder
 
     }))
     .setFunctionsSchemasGenerator((v, state) => v
-        .add("sendMessage", "Отправка сообщения в чат", {
+        .add("sendMessage", "Send message to chat", {
             type: "object",
             properties: {
                 message: {
@@ -44,7 +44,7 @@ export const chatBuilder = AppBuilder
             },
             required: ["message"]
         })
-        .add("openChat", "Открытие чата с пользователем", {
+        .add("openChat", "Open chat with user", {
             type: "object",
             properties: {
                 chatId: {
@@ -54,7 +54,7 @@ export const chatBuilder = AppBuilder
             },
             required: ["chatId"]
         })
-        .add("openChatList", "Открытие списка чатов", {
+        .add("openChatList", "Open chat list", {
             type: "object",
             properties: {
             },
@@ -63,9 +63,9 @@ export const chatBuilder = AppBuilder
     )
     .setWindowGenerator((state, generateWindow) => {
         const userId = state.userId;
-        const additionalMessages = state.reasoning.length > 0 ? [{ content: "Ваш ход размышлений:\n" + state.reasoning, role: "system" }] : [];
+        const additionalMessages = state.reasoning.length > 0 ? [{ content: "Your reasoning:\n" + state.reasoning, role: "system" }] : [];
         if (!userId) return {
-            messages: [{ content: "Вы не авторизованы", role: "system" }],
+            messages: [{ content: "You are not authorized", role: "system" }],
             availableFunctions: []
         };
 
@@ -77,7 +77,7 @@ export const chatBuilder = AppBuilder
             const avaliableUsersString = avaliableUsers.join(", ");
 
             return {
-                messages: [...additionalMessages, { content: "Список доступных пользователей для общения:\n" + avaliableUsersString, role: "system" }],
+                messages: [...additionalMessages, { content: "List of available users to chat with:\n" + avaliableUsersString, role: "system" }],
                 availableFunctions: ["openChat"]
             };
         }
@@ -107,11 +107,11 @@ export const chatBuilder = AppBuilder
             messages: [
                 ...additionalMessages,
                 {
-                    content: "У вас открыт чат с " + state.opennedChatId,
+                    content: "You have an open chat with " + state.opennedChatId,
                     role: "system"
                 },
                 ...messages,
-                ...(!allowSendMessage ? [{ content: "СИСТЕМНОЕ СООБЩЕНИЕ: Вы не можете отправить сообщение, пока пользователь вам не ответит", role: "system" }] : [])
+                ...(!allowSendMessage ? [{ content: "SYSTEM MESSAGE: You cannot send a message until the user responds", role: "system" }] : [])
             ],
             availableFunctions: ["openChatList", ...(allowSendMessage ? ["sendMessage"] : [])] as ("openChatList" | "sendMessage")[]
         };
@@ -147,9 +147,9 @@ export const chatBuilder = AppBuilder
     })
     .setBasePromptGenerator(state =>
         state.opennedChatId !== undefined ?
-            "У вас открыт чат с " + state.opennedChatId
+            "You have an open chat with " + state.opennedChatId
             :
             ""
     )
 
-    .setAppDescription("Это приложение для общения с пользователями. Вы можете открыть чат с пользователем, отправить им сообщение и просматривать список доступных пользователей для общения.")
+    .setAppDescription("This is an application for communicating with users. You can open a chat with a user, send them messages and view the list of available users to chat with.")

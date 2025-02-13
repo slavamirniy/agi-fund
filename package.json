@@ -11,6 +11,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@safe-global/api-kit": "^2.5.9",
+    "@safe-global/protocol-kit": "^5.2.2",
     "@types/express": "^5.0.0",
     "@waifusdk/providers": "^0.0.8",
     "ajv": "^8.17.1",

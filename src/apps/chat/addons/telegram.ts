@@ -14,7 +14,7 @@ export const telegramAddon = AddonBuilder
             const chat = chats.find(c => c.members.includes(state.userId!) && c.members.includes(state.opennedChatId!));
             if (!chat) return;
             try {
-                sendMessageToTopic("CHAT: " + chat.members.join(" | "), "FROM: " + (state.userId! in emojies ? emojies[state.userId!] : "") + " " + state.userId + "\n" + data.function.args.message);
+                sendMessageToTopic("" + chat.members.join(" | "), "FROM: " + (state.userId! in emojies ? emojies[state.userId!] : "") + " " + state.userId + "\n" + data.function.args.message);
             } catch (error) {
                 console.error(error);
             }
